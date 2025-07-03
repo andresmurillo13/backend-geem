@@ -1,0 +1,11 @@
+README.md
+setup.py
+hawk/__init__.py
+hawk/consumer.py
+hawk/publisher.py
+hawk/settings.py
+hawk.egg-info/PKG-INFO
+hawk.egg-info/SOURCES.txt
+hawk.egg-info/dependency_links.txt
+hawk.egg-info/requires.txt
+hawk.egg-info/top_level.txt

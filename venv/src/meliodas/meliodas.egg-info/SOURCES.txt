@@ -1,0 +1,10 @@
+README.md
+setup.py
+meliodas/__init__.py
+meliodas/model.py
+meliodas/settings.py
+meliodas.egg-info/PKG-INFO
+meliodas.egg-info/SOURCES.txt
+meliodas.egg-info/dependency_links.txt
+meliodas.egg-info/requires.txt
+meliodas.egg-info/top_level.txt

@@ -1,0 +1,25 @@
+Metadata-Version: 2.1
+Name: rocketchat
+Version: 1.0.0
+Summary: Python interface for the RocketChat REST API.
+Home-page: https://github.com/bpabel/rocketchat
+License: UNKNOWN
+Keywords: rocketchat,chat,api
+Author: Brendan Abel
+Author-email: 007brendan@gmail.com
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Classifier: License :: OSI Approved :: MIT License
+Requires-Dist: requests >=2,<3
+Requires-Dist: sphinx ; extra == "doc"
+Requires-Dist: pytest ; extra == "test"
+Requires-Dist: mock ; extra == "test"
+Provides-Extra: doc
+Provides-Extra: test
+
+# rocketchat
+
+Python API wrapper for the rocket.chat REST API.  Attempts to follow the 
+[REST api names and syntax](https://rocket.chat/docs/developer-guides/rest-api/)
+as closely as possible.
+

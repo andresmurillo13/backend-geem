@@ -1,0 +1,4 @@
+hawk==1.0.7
+meliodas==1.0.9
+rocketchat==1.0.0
+starlette==0.13.6
