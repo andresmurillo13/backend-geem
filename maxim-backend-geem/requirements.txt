@@ -1,0 +1,6 @@
+starlette
+uvicorn
+tortoise-orm
+asyncpg
+marshmallow
+boto3

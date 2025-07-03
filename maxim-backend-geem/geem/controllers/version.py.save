@@ -1,0 +1,184 @@
+from datetime import datetime, timezone
+from tortoise.expressions import Q
+from tortoise.functions import Max
+import math
+
+from geem.models import ModelUser, ModelCompanies, ModelLogUser, ModelVersion, ModelVersionitems
+
+
+class Version:
+
+    def __init__(self, id="", description="", usr="", company="", audit="", level="", level2="", version=""):
+
+        self._id = id
+        self._usr = usr
+        self._company = company
+        self._description = description
+        self._audit = audit
+        self._level = level
+        self._level2 = level2
+        self._version = version
+
+
+    async def createVersion(self):
+        usr = await ModelUser.get_or_none(id=self._usr)
+        comp = await ModelCompanies.get_or_none(id=self._company)
+        exist = await ModelVersion.filter(status=2)
+        if not exist:
+            ver = await ModelVersion.filter(company=self._company).annotate(max_version=Max("version")).values('max_version')
+            v = 1
+            if ver[0]['max_version'] is not None:
+                v = ver[0]['max_version'] + 1
+            try:
+                res = await ModelVersion.create(status=2, description=self._description, version=v, company=comp)
+                await ModelLogUser.create(event='Se crea versión ' + str(res.id), controller='VERSION', user=usr,
+                                              company=comp)
+                if res:
+                    return True
+                return False
+            except:
+                return False
+        return False
+
+    async def getVersion(self):
+        res = await ModelVersion.filter(id=self._id).prefetch_related('company')
+        return res
+
+    async def updateVersion(self):
+        usr = await ModelUser.get_or_none(id=self._usr)
+        comp = await ModelCompanies.get_or_none(id=self._company)
+        exist = await ModelVersion.get_or_none(id=self._id)
+        if exist:
+            exist.description = self._description
+            try:
+                await exist.save()
+                await ModelLogUser.create(event='Se actualiza versión ' + str(exist.id), controller='VERSION', user=usr,
+                                              company=comp)
+                return True
+            except:
+                return False
+        return False
+
+    async def deleteVersion(self):
+        usr = await ModelUser.get_or_none(id=self._usr)
+        comp = await ModelCompanies.get_or_none(id=self._company)
+        exist = await ModelVersion.get_or_none(id=self._id)
+        if exist:
+            try:
+                await ModelVersionitems.filter(version_id=self._id).delete()
+                await ModelVersion.filter(id=self._id).delete()
+                await ModelLogUser.create(event='Se borra versión ' + str(exist.id), controller='VERSION', user=usr,
+                                                  company=comp)
+                return True
+            except:
+                return False
+        return False
+
+    async def activateVersion(self):
+        usr = await ModelUser.get_or_none(id=self._usr)
+        comp = await ModelCompanies.get_or_none(id=self._company)
+        exist = await ModelVersion.get_or_none(id=self._id)
+        if exist:
+            try:
+                await ModelVersion.filter(status=1).update(status=3)
+                await ModelVersionitems.filter(status=1).update(status=3)
+                await ModelVersionitems.filter(version_id=self._id).update(status=1)
+                await ModelVersion.filter(id=self._id).update(status=1)
+                await ModelLogUser.create(event='Se activa versión ' + str(exist.id), controller='VERSION', user=usr,
+                                                  company=comp)
+                return True
+            except Exception as error:
+                print('error: ', error)
+                return False
+        print('not found: ', exist)
+        return False
+
+    async def getVersions(self):
+        res = await ModelVersion.filter(company_id=self._company).order_by('version').prefetch_related('company')
+        if res:
+            for r in res:
+                if r.status in [1, 3]:
+                    r.delete = False
+                    r.update = False
+                    r.activate = False
+                    r.duplicate = True
+                    dup = await ModelVersion.filter(status=2)
+                    if dup:
+                        r.duplicate = False
+                if r.status == 2:
+                    r.delete = True
+                    r.update = True
+                    r.duplicate = False
+                    view = await ModelVersionitems.filter(version_id=r.id)
+                    if view:
+                        r.activate = True
+                    else:
+                        r.activate = False
+            return res
+        return False
+
+    async def createVersionitem(self):
+        usr = await ModelUser.get_or_none(id=self._usr)
+        comp = await ModelCompanies.get_or_none(id=self._company)
+        ver = await ModelVersion.get_or_none(id=self._version)
+        compru = await ModelVersionitems.filter(level=self._level, level2=self._level2, version_id=self._version)
+        print('compru: ', compru)
+        print('version: ', ver)
+        if not compru:
+            try:
+                res = await ModelVersionitems.create(status=2, description=self._description, version=ver, company=comp,
+                                                     level=self._level, level2=self._level2, audit=self._audit)
+                await ModelLogUser.create(event='Se crea item versión ' + str(res.id), controller='VERSION', user=usr,
+                                              company=comp)
+<<<<<<< HEAD
+                if res:
+                    return True
+                print('no guardo')
+                return False
+            except Exception as e:
+                print('error: ', e
+                return True
+            except:
+>>>>>>> 9b422124176addb90732f216fe3306652cd27bb4
+                return False
+        return False
+
+    async def deleteVersionitem(self):
+        usr = await ModelUser.get_or_none(id=self._usr)
+        comp = await ModelCompanies.get_or_none(id=self._company)
+        item = await ModelVersionitems.get_or_none(id=self._id)
+        if item:
+            await ModelVersionitems.filter(id=self._id).delete()
+            await ModelLogUser.create(event='Se borra item versión ' + str(item.id), controller='VERSION', user=usr,
+                                      company=comp)
+            return True
+        return False
+
+    async def getVersionitems(self):
+        res = await ModelVersionitems.filter(version_id=self._version).order_by('level', 'level2').prefetch_related('company')
+        if res:
+            for r in res:
+                r.delete = False
+                if r.status == 2:
+                    r.delete = True
+            return res
+        return False
+
+    async def duplicateVersion(self):
+        usr = await ModelUser.get_or_none(id=self._usr)
+        comp = await ModelCompanies.get_or_none(id=self._company)
+        ver = await ModelVersion.filter(status=2)
+        print("ver: ", ver)
+        if not ver:
+                ve = await ModelVersion.filter(company=self._company).annotate(max_version=Max("version")).values('max_version')
+                v = ve[0]['max_version'] + 1
+                ver = await ModelVersion.get_or_none(id=self._version)
+                res = await ModelVersion.create(status=2, description=ver.description + '-v', version=v, company=comp)
+                if res:
+                    ite = await ModelVersionitems.filter(version_id=self._version)
+                    for i in ite:
+                        await ModelVersionitems.create(status=2, description=i.description, version_id=res.id, company=comp,
+                                                     level=i.level, level2=i.level2, audit=i.audit)
+                    await ModelLogUser.create(event='Se duplica la versión ' + str(ver.id), controller='VERSION', user=usr, company=comp)
+                return True
+        return False

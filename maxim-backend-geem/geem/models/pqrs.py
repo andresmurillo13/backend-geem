@@ -1,0 +1,43 @@
+from tortoise import Model, fields
+
+
+class ModelPqrs(Model):
+    id = fields.IntField(pk=True)
+    pqrstype = fields.ForeignKeyField('models.Modelpqrstype', null=True)
+    claimanttype = fields.ForeignKeyField('models.ModelClaimantType', null=True)
+    areas = fields.ForeignKeyField('models.ModelAreas')
+    user = fields.ForeignKeyField('models.ModelUser', null=True, related_name="user_created")
+    companies = fields.ForeignKeyField('models.ModelCompanies')
+    user_resp = fields.ForeignKeyField('models.ModelUser', null=True, related_name="user_resp")
+    user_boss = fields.ForeignKeyField('models.ModelUser', related_name="user_boss")
+    simaf = fields.ForeignKeyField('models.ModelAplication', null=True)
+    locations = fields.ForeignKeyField('models.ModelLocations', null=True)
+    first_name = fields.CharField(max_length=150, null=True)
+    last_name = fields.CharField(max_length=200, null=True)
+    type_person = fields.IntField(null=True)
+    type_document = fields.IntField(null=True)
+    num_document = fields.CharField(max_length=45, null=True)
+    email = fields.CharField(max_length=100, null=True)
+    address = fields.CharField(max_length=200, null=True)
+    city = fields.CharField(max_length=100, null=True)
+    country = fields.CharField(max_length=100, null=True)
+    state = fields.CharField(max_length=100, null=True)
+    phone = fields.CharField(max_length=45, null=True)
+    ext = fields.CharField(max_length=10, null=True)
+    phone2 = fields.CharField(max_length=45, null=True)
+    ext2 = fields.CharField(max_length=10, null=True)
+    score = fields.CharField(max_length=45, null=True)
+    obs_final = fields.CharField(max_length=1000, null=True)
+    status = fields.IntField(default=1, null=True)
+    created = fields.DatetimeField(null=True)
+    closed = fields.DatetimeField(null=True)
+    message = fields.CharField(max_length=1000, null=True)
+    action = fields.CharField(max_length=1000, null=True)
+    site = fields.CharField(max_length=100, null=True)
+    form = fields.IntField()
+    psnc = fields.IntField(null=True)
+    typepsnc = fields.IntField()
+    event_date = fields.DateField(null=True)
+
+    class Meta:
+        table = 'pqrs'
